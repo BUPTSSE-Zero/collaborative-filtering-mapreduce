@@ -1,0 +1,79 @@
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+sourceCompatibility = 1.7
+
+buildscript{
+    repositories {
+        jcenter()
+    }
+    dependencies{
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compileOnly "org.apache.hadoop:hadoop-client:${PROJECT_HADOOP_VERSION}"
+}
+
+ext{
+    DATASET_DIR = 'DatasetFiles'
+    OUTPUT_JAR = "build/libs/${rootProject.name}-all.jar"
+}
+
+jar{
+    manifest{
+        attributes 'Main-Class': 'bupt.sse.hadoop.cfrs.Main'
+    }
+}
+
+task startHadoop(){
+    doLast{
+        exec{
+            commandLine 'sh', "${HADOOP_HOME}/sbin/start-dfs.sh"
+        }
+        exec{
+            commandLine 'sh', "${HADOOP_HOME}/sbin/start-yarn.sh"
+        }
+    }
+}
+
+task stopHadoop(){
+    doLast{
+        exec{
+            commandLine 'sh', "${HADOOP_HOME}/sbin/stop-yarn.sh"
+        }
+        exec{
+            commandLine 'sh', "${HADOOP_HOME}/sbin/stop-dfs.sh"
+        }
+    }
+}
+
+task uploadDataFiles(){
+    doLast{
+        FileTree tree = fileTree(dir: DATASET_DIR, include: "*")
+        tree.each {File file ->
+            exec{
+                commandLine "${HADOOP_HOME}/bin/hdfs", 'dfs', '-copyFromLocal', '-f', file.path, "${PROJECT_HDFS_INPUT_DIR}"
+            }
+        }
+    }
+}
+
+task buildAndRun(dependsOn: 'shadowJar'){
+    doLast{
+        try {
+            exec{
+                commandLine "${HADOOP_HOME}/bin/hdfs", 'dfs', '-rm', '-r', PROJECT_HDFS_OUTPUT_DIR
+            }
+        }catch (Exception ignore){}
+
+        exec{
+            commandLine "${HADOOP_HOME}/bin/hadoop", 'jar', OUTPUT_JAR, PROJECT_HDFS_INPUT_DIR, PROJECT_HDFS_OUTPUT_DIR
+        }
+    }
+}

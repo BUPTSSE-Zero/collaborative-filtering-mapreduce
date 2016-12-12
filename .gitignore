@@ -10,3 +10,24 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# Output directory
+build*/*
+out/*
+
+# IDEA
+.idea/*
+
+# Eclipse
+.settings/*
+.project
+.classpath
+
+# Private gradle settings
+gradle.properties
+
+# Dataset files
+DatasetFiles/*
+
+# Gradle
+.gradle
