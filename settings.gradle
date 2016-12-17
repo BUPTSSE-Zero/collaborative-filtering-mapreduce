@@ -1,4 +1,5 @@
 rootProject.name = 'collaborative-filtering-mapreduce'
 include 'UserCF'
 include 'Shared'
+include 'ItemCF'
 

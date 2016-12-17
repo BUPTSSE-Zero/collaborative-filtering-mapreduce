@@ -1,12 +1,12 @@
 jar{
     manifest{
-        attributes 'Main-Class': 'bupt.sse.hadoop.cfrs.usercf.Main'
+        attributes 'Main-Class': 'bupt.sse.hadoop.cfrs.itemcf.Main'
     }
 }
 
 ext{
     OUTPUT_JAR = "build/libs/${project.name}-all.jar"
-    HDFS_OUTPUT_DIR = "${PROJECT_HDFS_OUTPUT_DIR}/UserCF"
+    HDFS_OUTPUT_DIR = "${PROJECT_HDFS_OUTPUT_DIR}/ItemCF"
 }
 
 task buildAndRun(dependsOn: 'shadowJar'){
@@ -22,7 +22,7 @@ task buildAndRun(dependsOn: 'shadowJar'){
         }
 
         exec{
-            commandLine "${HADOOP_HOME}/bin/hadoop", 'jar', OUTPUT_JAR, "${PROJECT_HDFS_INPUT_DIR}/ratings.dat", "${HDFS_OUTPUT_DIR}/Step1"
+            commandLine "${HADOOP_HOME}/bin/hadoop", 'jar', OUTPUT_JAR
         }
     }
 }
