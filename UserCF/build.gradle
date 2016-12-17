@@ -1,0 +1,27 @@
+jar{
+    manifest{
+        attributes 'Main-Class': 'bupt.sse.hadoop.cfrs.usercf.Main'
+    }
+}
+
+ext{
+    OUTPUT_JAR = "build/libs/${project.name}-all.jar"
+}
+
+task buildAndRun(dependsOn: 'shadowJar'){
+    doLast{
+        try {
+            exec{
+                commandLine "${HADOOP_HOME}/bin/hdfs", 'dfs', '-rm', '-r', "${PROJECT_HDFS_OUTPUT_DIR}/UserCF"
+            }
+        }catch (Exception ignore){}
+
+        exec{
+            commandLine "${HADOOP_HOME}/bin/hdfs", 'dfs', '-mkdir', '-p', "${PROJECT_HDFS_OUTPUT_DIR}/UserCF"
+        }
+
+        exec{
+            commandLine "${HADOOP_HOME}/bin/hadoop", 'jar', OUTPUT_JAR, "${PROJECT_HDFS_INPUT_DIR}/ratings.dat", "${PROJECT_HDFS_OUTPUT_DIR}/UserCF/Step1"
+        }
+    }
+}

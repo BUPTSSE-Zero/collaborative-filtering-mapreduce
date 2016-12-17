@@ -1,8 +1,3 @@
-apply plugin: 'java'
-apply plugin: 'com.github.johnrengelman.shadow'
-
-sourceCompatibility = 1.7
-
 buildscript{
     repositories {
         jcenter()
@@ -12,23 +7,30 @@ buildscript{
     }
 }
 
-repositories {
-    jcenter()
-}
+subprojects{
+    apply plugin: 'java'
+    sourceCompatibility = 1.7
 
-dependencies {
-    compileOnly "org.apache.hadoop:hadoop-client:${PROJECT_HADOOP_VERSION}"
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        compileOnly "org.apache.hadoop:hadoop-client:${PROJECT_HADOOP_VERSION}"
+        compile 'com.google.code.gson:gson:+'
+    }
+
+    if (project.name != 'Shared') {
+        apply plugin: 'com.github.johnrengelman.shadow'
+        dependencies {
+            compile project(":Shared")
+        }
+    }
 }
 
 ext{
     DATASET_DIR = 'DatasetFiles'
     OUTPUT_JAR = "build/libs/${rootProject.name}-all.jar"
-}
-
-jar{
-    manifest{
-        attributes 'Main-Class': 'bupt.sse.hadoop.cfrs.Main'
-    }
 }
 
 task startHadoop(){
@@ -55,25 +57,17 @@ task stopHadoop(){
 
 task uploadDataFiles(){
     doLast{
-        FileTree tree = fileTree(dir: DATASET_DIR, include: "*")
-        tree.each {File file ->
+        try{
             exec{
-                commandLine "${HADOOP_HOME}/bin/hdfs", 'dfs', '-copyFromLocal', '-f', file.path, "${PROJECT_HDFS_INPUT_DIR}"
-            }
-        }
-    }
-}
-
-task buildAndRun(dependsOn: 'shadowJar'){
-    doLast{
-        try {
-            exec{
-                commandLine "${HADOOP_HOME}/bin/hdfs", 'dfs', '-rm', '-r', PROJECT_HDFS_OUTPUT_DIR
+                commandLine "${HADOOP_HOME}/bin/hdfs", 'dfs', '-mkdir', '-p', PROJECT_HDFS_INPUT_DIR
             }
         }catch (Exception ignore){}
 
-        exec{
-            commandLine "${HADOOP_HOME}/bin/hadoop", 'jar', OUTPUT_JAR, PROJECT_HDFS_INPUT_DIR, PROJECT_HDFS_OUTPUT_DIR
+        FileTree tree = fileTree(dir: DATASET_DIR, include: "*")
+        tree.each {File file ->
+            exec{
+                commandLine "${HADOOP_HOME}/bin/hdfs", 'dfs', '-copyFromLocal', '-f', file.path, PROJECT_HDFS_INPUT_DIR
+            }
         }
     }
 }
