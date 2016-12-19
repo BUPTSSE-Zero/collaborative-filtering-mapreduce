@@ -22,7 +22,7 @@ task buildAndRun(dependsOn: 'shadowJar'){
         }
 
         exec{
-            commandLine "${HADOOP_HOME}/bin/hadoop", 'jar', OUTPUT_JAR, "${PROJECT_HDFS_INPUT_DIR}/ratings.dat", "${HDFS_OUTPUT_DIR}/Step1"
+            commandLine "${HADOOP_HOME}/bin/hadoop", 'jar', OUTPUT_JAR, "${PROJECT_HDFS_INPUT_DIR}/ratings.csv", "${HDFS_OUTPUT_DIR}/Step1", "${HDFS_OUTPUT_DIR}/Step2", "${HDFS_OUTPUT_DIR}/Step3", "${HDFS_OUTPUT_DIR}/Step4", "${HDFS_OUTPUT_DIR}/Step5"
         }
     }
 }

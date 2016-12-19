@@ -10,7 +10,7 @@ A realize of collaborative filtering recommendation system based on Hadoop.
 
 + [Gradle](https://gradle.org/)
 
-+ [Hadoop](http://hadoop.apache.org/)
++ [Hadoop](http://hadoop.apache.org/)(2.x)
 
 + Recommended IDE: IntelliJ IDEA
 
